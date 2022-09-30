@@ -206,7 +206,9 @@ class Summation(TensorOp):
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
         shape = list(node.inputs[0].shape)
-        if isinstance(self.axes, int):
+        if self.axes is None:
+            shape = [1 for i in range(len(shape))]
+        elif isinstance(self.axes, int):
             shape[self.axes] = 1
         else:
             for axis in self.axes:
