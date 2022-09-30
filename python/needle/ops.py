@@ -1,6 +1,8 @@
 """Operator implementations."""
 
+from errno import ESTALE
 from numbers import Number
+from turtle import shape
 from typing import Optional, List
 from .autograd import NDArray
 from .autograd import Op, Tensor, Value, TensorOp
@@ -80,7 +82,7 @@ class PowerScalar(TensorOp):
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
+        return out_grad * self.scalar * power_scalar(node.inputs[0], self.scalar-1)
         ### END YOUR SOLUTION
 
 
@@ -182,7 +184,9 @@ class BroadcastTo(TensorOp):
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
-        return broadcast_to(out_grad, node.inputs[0].shape)
+        shapei = node.inputs[0].shape
+        index = tuple([i for i in range(len(self.shape)) if (i >= len(shapei) or self.shape[i] > shapei[i])])
+        return summation(out_grad, axes=index).reshape(shapei)
         ### END YOUR SOLUTION
 
 
@@ -201,7 +205,13 @@ class Summation(TensorOp):
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
-        return broadcast_to(out_grad, node.inputs[0].shape)
+        shape = list(node.inputs[0].shape)
+        if isinstance(self.axes, int):
+            shape[self.axes] = 1
+        else:
+            for axis in self.axes:
+                shape[axis] = 1
+        return broadcast_to(reshape(out_grad, shape), node.inputs[0].shape)
         ### END YOUR SOLUTION
 
 
@@ -289,7 +299,7 @@ class ReLU(TensorOp):
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
+        return ReLU(out_grad)
         ### END YOUR SOLUTION
 
 
