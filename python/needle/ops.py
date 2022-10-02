@@ -1,8 +1,6 @@
 """Operator implementations."""
 
-from errno import ESTALE
 from numbers import Number
-from turtle import shape
 from typing import Optional, List
 from .autograd import NDArray
 from .autograd import Op, Tensor, Value, TensorOp
