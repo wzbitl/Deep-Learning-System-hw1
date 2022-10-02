@@ -284,7 +284,7 @@ class Exp(TensorOp):
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
-        return out_grad * exp(node.input[0])
+        return out_grad * exp(node.inputs[0])
         ### END YOUR SOLUTION
 
 
@@ -301,7 +301,9 @@ class ReLU(TensorOp):
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
-        return ReLU(out_grad)
+        input = node.inputs[0]
+        
+        return out_grad * Tensor(array_api.where(input.cached_data > 0, 1, 0))
         ### END YOUR SOLUTION
 
 

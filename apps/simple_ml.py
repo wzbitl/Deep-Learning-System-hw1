@@ -30,7 +30,15 @@ def parse_mnist(image_filesname, label_filename):
                 for MNIST will contain the values 0-9.
     """
     ### BEGIN YOUR SOLUTION
-    raise NotImplementedError()
+    with gzip.open(label_filename, 'rb') as label_file:
+      magic_num, num_label = struct.unpack('>II', label_file.read(8))
+      y = np.fromstring(label_file.read(), dtype=np.uint8)
+    
+    with gzip.open(image_filesname, 'rb') as image_file:
+      magic_num, num_image, num_row, num_column = struct.unpack('>IIII', image_file.read(16))
+      X = np.fromstring(image_file.read(), dtype=np.uint8).reshape(len(y), 784).astype(np.float32)
+      X = (X - np.min(X)) / (np.max(X) - np.min(X))
+    return X, y
     ### END YOUR SOLUTION
 
 
@@ -51,7 +59,11 @@ def softmax_loss(Z, y_one_hot):
         Average softmax loss over the sample. (ndl.Tensor[np.float32])
     """
     ### BEGIN YOUR SOLUTION
-    raise NotImplementedError()
+    batch_size = y_one_hot.shape[0]
+    a= ndl.ops.log(ndl.ops.exp(Z).sum(axes=1))
+    b = ndl.ops.summation(-Z * y_one_hot, axes=1)
+    loss = ndl.ops.summation(b + a)
+    return loss / batch_size
     ### END YOUR SOLUTION
 
 
@@ -80,7 +92,22 @@ def nn_epoch(X, y, W1, W2, lr = 0.1, batch=100):
     """
 
     ### BEGIN YOUR SOLUTION
-    raise NotImplementedError()
+    num_examples = len(y)
+    index = 0
+    for i in range(num_examples // batch):
+        X_batch = X[index: index+batch]
+        y_batch = y[index: index+batch]
+        index += batch
+        y_one_hot = np.zeros((batch, max(y)+1))
+        y_one_hot[range(batch), y_batch] = 1
+        X_batch = ndl.Tensor(X_batch)
+        y_one_hot = ndl.Tensor(y_one_hot)
+        Z = ndl.ops.relu(X_batch @ W1) @ W2
+        loss = softmax_loss(Z, y_one_hot)
+        loss.backward()
+        W1 = ndl.Tensor(W1.numpy() - lr * W1.grad.numpy())
+        W2 = ndl.Tensor(W2.numpy() - lr * W2.grad.numpy())
+    return W1, W2
     ### END YOUR SOLUTION
 
 
