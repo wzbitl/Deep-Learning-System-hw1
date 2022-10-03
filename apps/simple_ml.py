@@ -60,7 +60,7 @@ def softmax_loss(Z, y_one_hot):
     """
     ### BEGIN YOUR SOLUTION
     batch_size = y_one_hot.shape[0]
-    a= ndl.ops.log(ndl.ops.exp(Z).sum(axes=1))
+    a = ndl.ops.log(ndl.ops.exp(Z).sum(axes=1))
     b = ndl.ops.summation(-Z * y_one_hot, axes=1)
     loss = ndl.ops.summation(b + a)
     return loss / batch_size

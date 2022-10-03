@@ -300,7 +300,6 @@ class ReLU(TensorOp):
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
         input = node.inputs[0]
-        
         return out_grad * Tensor(array_api.where(input.cached_data > 0, 1, 0))
         ### END YOUR SOLUTION
 

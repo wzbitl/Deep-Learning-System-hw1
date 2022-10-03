@@ -401,20 +401,14 @@ def compute_gradient_of_variables(output_tensor, out_grad):
     ### BEGIN YOUR SOLUTION
     output_tensor.grad = out_grad
     for node in reverse_topo_order:
-        adj_v = sum(node_to_output_grads_list[node])
+        adj_v = sum_node_list(node_to_output_grads_list[node])
         node.grad = adj_v
-        input_num = len(node.inputs)
         if not node.is_leaf():
-            gradients = node.op.gradient(adj_v, node)
-            if isinstance(gradients, Tensor):
-                if not node.inputs[0] in node_to_output_grads_list:
-                    node_to_output_grads_list[node.inputs[0]] = []
-                node_to_output_grads_list[node.inputs[0]].append(gradients)
-            else:
-                for i in range(input_num):
-                    if not node.inputs[i] in node_to_output_grads_list:
-                        node_to_output_grads_list[node.inputs[i]] = []
-                    node_to_output_grads_list[node.inputs[i]].append(gradients[i])
+            gradients = node.op.gradient_as_tuple(adj_v, node)
+            for input, grad in zip(node.inputs, gradients):
+                if not input in node_to_output_grads_list:
+                    node_to_output_grads_list[input] = []
+                node_to_output_grads_list[input].append(grad)
     ### END YOUR SOLUTION
 
 
